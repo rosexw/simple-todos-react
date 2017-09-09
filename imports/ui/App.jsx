@@ -1,14 +1,15 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
+import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
 import { Tasks } from '../api/tasks.js';
 
 import Task from './Task.jsx';
+import AccountsUIWrapper from './AccountsUIWrapper.jsx';
 
 // App component - represents the whole app
 class App extends Component {
-  class App extends Component {
   constructor(props) {
     super(props);
 
@@ -16,7 +17,6 @@ class App extends Component {
       hideCompleted: false,
     };
   }
-
 
   handleSubmit(event) {
     event.preventDefault();
@@ -27,6 +27,8 @@ class App extends Component {
     Tasks.insert({
       text,
       createdAt: new Date(), // current time
+      owner: Meteor.userId(),           // _id of logged in user
+      username: Meteor.user().username,  // username of logged in user
     });
 
     // Clear form
@@ -53,7 +55,8 @@ class App extends Component {
     return (
       <div className="container">
         <header>
-           <h1>Todo List ({this.props.incompleteCount})</h1>
+          <h1>Todo List ({this.props.incompleteCount})</h1>
+
           <label className="hide-completed">
             <input
               type="checkbox"
@@ -64,12 +67,14 @@ class App extends Component {
             Hide Completed Tasks
           </label>
 
+          <AccountsUIWrapper />
+
           <form className="new-task" onSubmit={this.handleSubmit.bind(this)} >
-             <input
-               type="text"
-               ref="textInput"
-               placeholder="Type to add new tasks"
-             />
+            <input
+              type="text"
+              ref="textInput"
+              placeholder="Type to add new tasks"
+            />
           </form>
         </header>
 
