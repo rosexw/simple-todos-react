@@ -14,20 +14,12 @@ if (Meteor.isServer) {
         { owner: this.userId },
       ],
     });
-  Meteor.publish('tasks', function tasksPublication() {
-    return Tasks.find();
   });
 }
 
 Meteor.methods({
   'tasks.insert'(text) {
     check(text, String);
-
-    const task = Tasks.findOne(taskId);
-    if (task.private && task.owner !== Meteor.userId()) {
-      // If the task is private, make sure only the owner can delete it
-      throw new Meteor.Error('not-authorized');
-    }
 
     // Make sure the user is logged in before inserting a task
     if (! Meteor.userId()) {
@@ -43,6 +35,12 @@ Meteor.methods({
   },
   'tasks.remove'(taskId) {
     check(taskId, String);
+
+    const task = Tasks.findOne(taskId);
+    if (task.private && task.owner !== Meteor.userId()) {
+      // If the task is private, make sure only the owner can delete it
+      throw new Meteor.Error('not-authorized');
+    }
 
     Tasks.remove(taskId);
   },
